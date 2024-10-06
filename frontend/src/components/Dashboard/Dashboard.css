@@ -1,0 +1,26 @@
+.dashboard {
+  text-align: center;
+  margin: 20px;
+}
+
+.dashboard h1 {
+  font-size: 2.5rem;
+}
+
+.dashboard-links {
+  margin-top: 20px;
+}
+
+.dashboard-link {
+  display: inline-block;
+  margin: 10px;
+  padding: 10px 20px;
+  text-decoration: none;
+  background-color: #8E44AD;
+  color: white;
+  border-radius: 5px;
+}
+
+.dashboard-link:hover {
+  background-color: #732D91;
+}

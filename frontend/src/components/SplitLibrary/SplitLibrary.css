@@ -1,0 +1,107 @@
+.split-library-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  text-align: center;
+}
+
+.split-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.split-box {
+  position: relative;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  width: 300px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  transition: box-shadow 0.3s;
+  background-color: #f9f9f9;
+}
+
+.split-box:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transform: translateY(-5px);
+}
+
+.split-box h3 {
+  margin: 10px 0 5px 0;
+}
+
+.split-box ul {
+  list-style-type: disc;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.split-box li {
+  margin: 5px 0;
+}
+
+.edit-button {
+  opacity: 0; /* Initially invisible */
+  visibility: hidden; /* Prevent it from taking space */
+  margin-top: 10px;
+  padding: 5px 10px;
+  background-color: #3498DB;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  display: inline-block;
+  transition: opacity 0.3s, visibility 0.3s; /* Smooth transition */
+}
+
+.edit-button:hover {
+  background-color: #2980B9;
+}
+
+.delete-button {
+  opacity: 0; /* Initially invisible */
+  visibility: hidden; /* Prevent it from taking space */
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s, visibility 0.3s; /* Smooth transition */
+}
+
+.delete-button:hover {
+  background-color: #8b0000;
+}
+
+.split-box:hover .delete-button,
+.split-box:hover .edit-button {
+  opacity: 1; /* Make it visible */
+  visibility: visible; /* Make it take space */
+}
+
+.create-split-button {
+  display: inline-block;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 10px 20px;
+  background-color: #9B59B6;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.create-split-button:hover {
+  background-color: #8E44AD;
+}

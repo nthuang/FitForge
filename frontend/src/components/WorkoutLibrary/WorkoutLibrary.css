@@ -1,0 +1,111 @@
+/* src/components/WorkoutLibrary/WorkoutLibrary.css */
+
+.workout-library-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  text-align: center;
+}
+
+.workouts-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.workout-box {
+  position: relative;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 15px;
+  width: 300px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  transition: box-shadow 0.3s;
+}
+
+.workout-box:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transform: translateY(-5px);
+}
+
+.workout-box h3 {
+  margin: 10px 0 5px 0;
+}
+
+.workout-box ul {
+  list-style-type: disc;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.workout-box li {
+  margin: 5px 0;
+}
+
+/* Edit Button */
+.edit-button {
+  opacity: 0; /* Initially invisible */
+  visibility: hidden; /* Prevent it from taking space */
+  margin-top: 10px;
+  padding: 5px 10px;
+  background-color: #3498DB;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  display: inline-block; /* Ensure it behaves as a block */
+  transition: opacity 0.3s, visibility 0.3s; /* Smooth transition */
+}
+
+/* Delete Button */
+.delete-button {
+  opacity: 0; /* Initially invisible */
+  visibility: hidden; /* Prevent it from taking space */
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s, visibility 0.3s; /* Smooth transition */
+}
+
+/* Show buttons on workout box hover */
+.workout-box:hover .delete-button,
+.workout-box:hover .edit-button {
+  opacity: 1; /* Make them visible */
+  visibility: visible; /* Allow them to take space */
+}
+
+.edit-button:hover {
+  background-color: #2980B9;
+}
+
+.delete-button:hover {
+  background-color: #8b0000; /* Change background on hover */
+}
+
+.create-workout-button {
+  display: inline-block;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 10px 20px;
+  background-color: #9B59B6;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.create-workout-button:hover {
+  background-color: #8E44AD;
+}
