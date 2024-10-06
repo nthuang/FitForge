@@ -1,5 +1,5 @@
 const express = require("express");
-const Split = require("../models/split");
+const Split = require("../models/Split");
 
 const router = express.Router();
 
