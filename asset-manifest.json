@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/FitForge/static/css/main.00ac1622.css",
+    "main.js": "/FitForge/static/js/main.668941f6.js",
+    "static/js/453.8ab44547.chunk.js": "/FitForge/static/js/453.8ab44547.chunk.js",
+    "index.html": "/FitForge/index.html",
+    "main.00ac1622.css.map": "/FitForge/static/css/main.00ac1622.css.map",
+    "main.668941f6.js.map": "/FitForge/static/js/main.668941f6.js.map",
+    "453.8ab44547.chunk.js.map": "/FitForge/static/js/453.8ab44547.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.00ac1622.css",
+    "static/js/main.668941f6.js"
+  ]
+}
