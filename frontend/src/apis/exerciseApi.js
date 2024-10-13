@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api"; // Base API URL
+const API_URL = "https://nfitforge-45045cb2f053.herokuapp.com/api"; // Base API URL
 
 // Function to trigger fetching exercises from the API
 export const triggerExerciseFetch = async () => {
