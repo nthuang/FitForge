@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://nfitforge-45045cb2f053.herokuapp.com/api"; // Base API URL
+const API_URL = "https://fitforge.onrender.com/api"; // Base API URL
 
 // Function to create a new split
 export const createSplit = async (split) => {
