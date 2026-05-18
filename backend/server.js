@@ -8,6 +8,7 @@ const path = require("path"); // Import path for serving static files
 const exerciseRoutes = require("./routes/exercises");
 const workoutRoutes = require("./routes/workouts");
 const splitRoutes = require("./routes/splits");
+const authRoutes = require("./routes/auth");
 
 // Load environment variables
 dotenv.config();
@@ -22,6 +23,7 @@ app.use(bodyParser.json()); // Parse JSON requests
 app.use("/api/exercises", exerciseRoutes);
 app.use("/api/workouts", workoutRoutes);
 app.use("/api/splits", splitRoutes);
+app.use("/api/auth", authRoutes);
 
 // Serve static files from the React frontend app
 app.use(express.static(path.join(__dirname, "../frontend/build")));
