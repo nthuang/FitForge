@@ -13,11 +13,10 @@ const workoutSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    workouts: [
+    exercises: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "workout",
-      }
+        type: Number, 
+      },
     ],
   },
   { timestamps: true }
