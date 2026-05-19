@@ -27,7 +27,7 @@ const WorkoutCreator = () => {
   useEffect(() => {
     const getExercises = async () => {
       try {
-        await triggerExerciseFetch(); // Trigger exercise fetch
+        //await triggerExerciseFetch(); // Trigger exercise fetch
         const data = await fetchExercises(searchTerm, page, limit); // Fetch exercises
         setExercises(data); // Update state with fetched exercises
       } catch (error) {

@@ -1,32 +1,90 @@
-import axios from "axios";
+import { getAuthHeaders } from "./authHeaders";
 
-const API_URL = "https://fitforge.onrender.com/api"; // Base API URL
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api"; // Base API URL
 
-// Function to create a new workout
-export const createWorkout = async (workout) => {
-  const { data } = await axios.post(`${API_URL}/workouts`, workout); // Send POST request to create workout
-  return data; // Return created workout data
-};
-
-// Function to fetch all workouts
 export const fetchWorkouts = async () => {
-  const { data } = await axios.get(`${API_URL}/workouts`); // Send GET request to fetch workouts
-  return data; // Return fetched workouts data
+    const response = await fetch(`${API_URL}/workouts`, {
+        headers: {
+            ...getAuthHeaders(),
+        },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch workouts");
+    }
+
+    return data;
 };
 
-// Function to fetch a workout by its ID
+export const createWorkout = async (workout) => {
+    const response = await fetch(`${API_URL}/workouts`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            ...getAuthHeaders(),
+        },
+        body: JSON.stringify(workout),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to create workout");
+    }
+
+    return data;
+};
+
 export const fetchWorkoutById = async (id) => {
-  const { data } = await axios.get(`${API_URL}/workouts/${id}`); // Send GET request for specific workout
-  return data; // Return fetched workout data
+  const response = await fetch(`${API_URL}/workouts/${id}`, {
+    headers: {
+      ...getAuthHeaders(),
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to fetch workout");
+  }
+
+  return data;
 };
 
-// Function to update a workout by its ID
 export const updateWorkout = async (id, workout) => {
-  const { data } = await axios.put(`${API_URL}/workouts/${id}`, workout); // Send PUT request to update workout
-  return data; // Return updated workout data
+  const response = await fetch(`${API_URL}/workouts/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+    body: JSON.stringify(workout),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to update workout");
+  }
+
+  return data;
 };
 
-// Function to delete a workout by its ID
 export const deleteWorkout = async (id) => {
-  await axios.delete(`${API_URL}/workouts/${id}`); // Send DELETE request to remove workout
+  const response = await fetch(`${API_URL}/workouts/${id}`, {
+    method: "DELETE",
+    headers: {
+      ...getAuthHeaders(),
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to delete workout");
+  }
+
+  return data;
 };

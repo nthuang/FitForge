@@ -11,7 +11,7 @@ const ExerciseLibrary = () => {
   useEffect(() => {
     const getExercises = async () => {
       try {
-        await triggerExerciseFetch(); // Fetch exercises from the API
+        //await triggerExerciseFetch(); // Fetch exercises from the API
         const data = await fetchExercises(searchTerm, page, limit); // Get exercises based on search and pagination
         setExercises(data); // Update state with fetched exercises
       } catch (error) {
