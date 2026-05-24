@@ -90,4 +90,43 @@ router.get("/me", protect, async (req, res) => {
     });
 });
 
+router.put("/profile", protect, async (req, res) => {
+    try {
+        const {
+            goal,
+            experienceLevel,
+            daysPerWeek,
+            sessionLengthMinutes,
+            equipment,
+            limitations,
+        } = req.body;
+
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        user.fitnessProfile = {
+            ...user.fitnessProfile,
+            goal,
+            experienceLevel,
+            daysPerWeek,
+            sessionLengthMinutes,
+            equipment,
+            limitations,
+        };
+
+        await user.save();
+
+        res.status(200).json({ user: serializeUser(user) });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to update fitness profile",
+            error: error.message,
+        })
+    }
+});
+
 module.exports = router;

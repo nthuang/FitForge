@@ -9,6 +9,8 @@ import SplitLibrary from "./components/SplitLibrary/SplitLibrary";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import ProtectedRoute from "./components/Auth/ProtectedRoute";
+import Profile from "./components/Profile/Profile";
+import AIWorkoutGenerator from "./components/AIWorkoutGenerator/AIWorkoutGenerator";
 import { useAuth } from "./context/AuthContext";
 import "./App.css";
 
@@ -40,6 +42,12 @@ const App = () => {
                   </li>
                   <li>
                     <Link to="/split-planner">Split Planner</Link>
+                  </li>
+                  <li>
+                    <Link to="/profile">Profile</Link>
+                  </li>
+                  <li>
+                    <Link to="/ai-generator">AI Generator</Link>
                   </li>
                 </>
               )}
@@ -121,6 +129,22 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <SplitPlanner />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/ai-generator"
+              element={
+                <ProtectedRoute>
+                  <AIWorkoutGenerator />
                 </ProtectedRoute>
               }
             />

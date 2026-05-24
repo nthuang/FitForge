@@ -9,6 +9,7 @@ const exerciseRoutes = require("./routes/exercises");
 const workoutRoutes = require("./routes/workouts");
 const splitRoutes = require("./routes/splits");
 const authRoutes = require("./routes/auth");
+const aiRoutes = require("./routes/ai");
 
 // Load environment variables
 dotenv.config();
@@ -24,6 +25,7 @@ app.use("/api/exercises", exerciseRoutes);
 app.use("/api/workouts", workoutRoutes);
 app.use("/api/splits", splitRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/ai", aiRoutes);
 
 // Serve static files from the React frontend app
 app.use(express.static(path.join(__dirname, "../frontend/build")));
