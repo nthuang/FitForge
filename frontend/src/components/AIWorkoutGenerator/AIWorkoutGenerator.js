@@ -1,15 +1,18 @@
 import { useState } from "react";
-import { generateWorkoutPlan } from "../../apis/aiApi";
+import { generateWorkoutPlan, saveGeneratedPlan } from "../../apis/aiApi";
 import "./AIWorkoutGenerator.css";
 
 const AIWorkoutGenerator = () => {
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleGenerate = async () => {
     setLoading(true);
     setError("");
+    setSuccess("");
     setPlan(null);
 
     try {
@@ -19,6 +22,23 @@ const AIWorkoutGenerator = () => {
       setError(error.message || "Failed to generate workout plan");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSavePlan = async () => {
+    if (!plan) return;
+
+    setSaving(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      await saveGeneratedPlan(plan);
+      setSuccess("Plan saved to your workouts and splits.");
+    } catch (error) {
+      setError(error.message || "Failed to save workout plan");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -36,6 +56,7 @@ const AIWorkoutGenerator = () => {
         </button>
 
         {error && <div className="ai-error">{error}</div>}
+        {success && <div className="ai-success">{success}</div>}
 
         {plan && (
           <div className="ai-plan">
@@ -43,6 +64,10 @@ const AIWorkoutGenerator = () => {
             <p>
               Goal: {plan.goal} | Days per week: {plan.daysPerWeek}
             </p>
+
+            <button onClick={handleSavePlan} disabled={saving}>
+              {saving ? "Saving..." : "Save Plan to My Workouts"}
+            </button>
 
             {plan.days?.map((day) => (
               <div key={day.day} className="ai-day-card">

@@ -1,6 +1,8 @@
 const express = require("express");
 const Exercise = require("../models/Exercise");
 const { protect } = require("../middleware/authMiddleware");
+const Workout = require("../models/Workout");
+const Split = require("../models/Split");
 
 const router = express.Router();
 
@@ -177,6 +179,48 @@ Return JSON in this exact shape:
     console.error("Error generating workout plan:", error);
     res.status(500).json({
       message: "Failed to generate workout plan",
+      error: error.message,
+    });
+  }
+});
+
+router.post("/save-generated-plan", protect, async (req, res) => {
+  try {
+    const { plan } = req.body;
+
+    if (!plan || !Array.isArray(plan.days)) {
+      return res.status(400).json({ message: "Valid plan is required" });
+    }
+
+    const createdWorkouts = [];
+
+    for (const day of plan.days) {
+      const exerciseIds = (day.exercises || []).map((exercise) => exercise.exerciseId);
+
+      const workout = await Workout.create({
+        userId: req.user._id,
+        name: day.name || `Day ${day.day}`,
+        exercises: exerciseIds,
+      });
+
+      createdWorkouts.push(workout);
+    }
+
+    const split = await Split.create({
+      userId: req.user._id,
+      name: plan.programName || "AI Generated Plan",
+      workouts: createdWorkouts.map((workout) => workout._id),
+    });
+
+    res.status(201).json({
+      message: "AI plan saved successfully",
+      split,
+      workouts: createdWorkouts,
+    });
+  } catch (error) {
+    console.error("Error saving generated plan:", error);
+    res.status(500).json({
+      message: "Failed to save generated plan",
       error: error.message,
     });
   }

@@ -71,3 +71,11 @@
 .ai-notes {
   margin-top: 1.5rem;
 }
+
+.ai-success {
+  margin: 1rem 0;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: #e8f7ec;
+  color: #1f7a3a;
+}
