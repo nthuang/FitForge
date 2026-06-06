@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"; // Import React and hooks
-import { triggerExerciseFetch, fetchExercises } from "../../apis/exerciseApi"; // Import API functions
+import { fetchExercises } from "../../apis/exerciseApi"; // Import API functions
 import "./ExerciseLibrary.css"; // Import CSS for styling
 
 const ExerciseLibrary = () => {

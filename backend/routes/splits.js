@@ -8,21 +8,29 @@ const router = express.Router();
 router.post("/", protect, async (req, res) => {
   const { name, workouts } = req.body;
 
-  if (!name || !Array.isArray(workouts)) {
-    return res.status(400).json({ message: "Name and workouts are required" });
+  if (!name || !name.trim()) {
+    return res.status(400).json({ message: "Split name is required" });
+  }
+
+  if (!Array.isArray(workouts)) {
+    return res.status(400).json({ message: "Workouts must be an array" });
   }
 
   try {
     const newSplit = new Split({
       userId: req.user._id,
-      name,
+      name: name.trim(),
       workouts,
     });
-    await newSplit.save(); // Save the new split to the database
-    res.status(201).json(newSplit); // Return the created split
+
+    await newSplit.save();
+
+    const populatedSplit = await Split.findById(newSplit._id).populate("workouts");
+
+    res.status(201).json(populatedSplit);
   } catch (error) {
     console.error("Error creating split:", error);
-    res.status(500).json({ message: "Server Error", error: error.message }); // Handle errors
+    res.status(500).json({ message: "Failed to create split", error: error.message });
   }
 });
 
@@ -60,13 +68,24 @@ router.get("/:id", protect, async (req, res) => {
 router.put("/:id", protect, async (req, res) => {
   const { name, workouts } = req.body;
 
+  if (!name || !name.trim()) {
+    return res.status(400).json({ message: "Split name is required" });
+  }
+
+  if (!Array.isArray(workouts)) {
+    return res.status(400).json({ message: "Workouts must be an array" });
+  }
+
   try {
     const split = await Split.findOneAndUpdate(
       {
         _id: req.params.id,
         userId: req.user._id,
       },
-      { name, workouts },
+      {
+        name: name.trim(),
+        workouts,
+      },
       {
         new: true,
         runValidators: true,
@@ -74,13 +93,13 @@ router.put("/:id", protect, async (req, res) => {
     ).populate("workouts");
 
     if (!split) {
-      return res.status(404).json({ message: "Split not found" }); // Handle not found
+      return res.status(404).json({ message: "Split not found" });
     }
 
-    res.status(200).json(split); // Return the updated split
+    res.status(200).json(split);
   } catch (error) {
     console.error("Error updating split:", error);
-    res.status(500).json({ message: "Server Error", error }); // Handle errors
+    res.status(500).json({ message: "Failed to update split", error: error.message });
   }
 });
 

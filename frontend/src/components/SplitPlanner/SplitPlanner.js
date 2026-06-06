@@ -1,159 +1,207 @@
-import React, { useState, useEffect } from "react"; // Import React and hooks
-import { fetchWorkouts } from "../../apis/workoutApi"; // API to fetch workouts
-import { createSplit, updateSplit } from "../../apis/splitApi"; // APIs for split management
-import { useLocation, useNavigate } from "react-router-dom"; // Hooks for routing
-import "./SplitPlanner.css"; // Import CSS for styling
+import React, { useState, useEffect } from "react";
+import { fetchWorkouts } from "../../apis/workoutApi";
+import { createSplit, updateSplit } from "../../apis/splitApi";
+import { useLocation, useNavigate } from "react-router-dom";
+import "./SplitPlanner.css";
 
 const SplitPlanner = () => {
-  const location = useLocation(); // Get location object
-  const navigate = useNavigate(); // Initialize navigation
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  // Destructure state from location or set defaults
   const {
     splitId,
     splitName = "",
     selectedWorkouts = [],
   } = location.state || {};
 
-  // State variables
-  const [allWorkouts, setAllWorkouts] = useState([]); // All workouts
-  const [workouts, setWorkouts] = useState([]); // Filtered workouts for display
-  const [selected, setSelected] = useState(selectedWorkouts); // Selected workouts
-  const [splitNameState, setSplitNameState] = useState(splitName); // Split name
-  const [searchTerm, setSearchTerm] = useState(""); // Search input
-  const [page, setPage] = useState(1); // Pagination
-  const [limit] = useState(16); // Number of workouts per page
+  const [allWorkouts, setAllWorkouts] = useState([]);
+  const [workouts, setWorkouts] = useState([]);
+  const [selected, setSelected] = useState(selectedWorkouts);
+  const [splitNameState, setSplitNameState] = useState(splitName);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit] = useState(16);
 
-  // Fetch workouts on component mount
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+
   useEffect(() => {
     const getWorkouts = async () => {
       try {
-        const data = await fetchWorkouts(); // Fetch workout data
-        setAllWorkouts(data); // Set all workouts in state
+        const data = await fetchWorkouts();
+        setAllWorkouts(data);
       } catch (error) {
         console.error("Error fetching workouts:", error);
+        setError(error.message || "Failed to fetch workouts.");
       }
     };
 
     getWorkouts();
   }, []);
 
-  // Filter workouts based on search term and pagination
   useEffect(() => {
     const filteredWorkouts = allWorkouts.filter((workout) =>
       workout.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const startIndex = (page - 1) * limit; // Calculate start index
-    const endIndex = startIndex + limit; // Calculate end index
-    setWorkouts(filteredWorkouts.slice(startIndex, endIndex)); // Update displayed workouts
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+
+    setWorkouts(filteredWorkouts.slice(startIndex, endIndex));
   }, [allWorkouts, searchTerm, page, limit]);
 
-  // Handle selection of a workout
+  const isWorkoutSelected = (workout) => {
+    return selected.some((selectedWorkout) => selectedWorkout._id === workout._id);
+  };
+
   const handleWorkoutSelect = (workout) => {
-    if (!selected.includes(workout)) {
-      setSelected([...selected, workout]); // Add workout to selected
+    if (!isWorkoutSelected(workout)) {
+      setSelected((prev) => [...prev, workout]);
+      setError("");
     }
   };
 
-  // Handle removal of a workout
   const handleWorkoutRemove = (workout) => {
-    setSelected(selected.filter((w) => w !== workout)); // Remove workout from selected
+    setSelected((prev) =>
+      prev.filter((selectedWorkout) => selectedWorkout._id !== workout._id)
+    );
   };
 
-  // Create or update split based on presence of splitId
   const handleCreateOrUpdateSplit = async () => {
+    setError("");
+
+    if (!splitNameState.trim()) {
+      setError("Please enter a split name.");
+      return;
+    }
+
+    if (selected.length === 0) {
+      setError("Please select at least one workout.");
+      return;
+    }
+
     const splitData = {
-      name: splitNameState,
-      workouts: selected.map((w) => w._id), // Map selected workouts to their IDs
+      name: splitNameState.trim(),
+      workouts: selected.map((workout) => workout._id),
     };
 
-    if (splitId) {
-      await updateSplit(splitId, splitData); // Update existing split
-    } else {
-      await createSplit(splitData); // Create new split
-    }
+    try {
+      setSaving(true);
 
-    // Reset state and navigate to splits page
-    setSplitNameState("");
-    setSelected([]);
-    navigate("/splits");
+      if (splitId) {
+        await updateSplit(splitId, splitData);
+      } else {
+        await createSplit(splitData);
+      }
+
+      setSplitNameState("");
+      setSelected([]);
+      navigate("/splits");
+    } catch (error) {
+      console.error("Error saving split:", error);
+      setError(error.message || "Failed to save split.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  // Handle search input changes
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value); // Update search term
-    setPage(1); // Reset to first page
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+    setPage(1);
   };
 
   return (
     <div className="split-planner">
-      {" "}
-      {/* Main container */}
-      <h2>{splitId ? "Edit Split" : "Create a New Split"}</h2> {/* Title */}
+      <h2>{splitId ? "Edit Split" : "Create a New Split"}</h2>
+
+      {error && <div className="error-message">{error}</div>}
+
       <input
         type="text"
         placeholder="Split Name"
         value={splitNameState}
-        onChange={(e) => setSplitNameState(e.target.value)} // Update split name
+        onChange={(event) => setSplitNameState(event.target.value)}
       />
+
       <h3>Select Workouts</h3>
+
       <input
         type="text"
         placeholder="Search Workouts"
         value={searchTerm}
-        onChange={handleSearchChange} // Handle search input changes
+        onChange={handleSearchChange}
       />
+
       <div className="workout-list">
         {workouts.map((workout) => (
           <div key={workout._id} className="workout-box">
             <h4>{workout.name}</h4>
+
             <ul>
-              {workout.exercises.map((exercise) => (
-                <li key={exercise._id}>
-                  <p>{exercise.name}</p> {/* Exercise name */}
+              {(workout.exercises || []).map((exercise) => (
+                <li key={exercise._id || exercise.id}>
+                  <p>{exercise.name}</p>
                 </li>
               ))}
             </ul>
-            <button onClick={() => handleWorkoutSelect(workout)}>Add</button>{" "}
-            {/* Add workout */}
+
+            <button
+              type="button"
+              onClick={() => handleWorkoutSelect(workout)}
+              disabled={isWorkoutSelected(workout)}
+            >
+              {isWorkoutSelected(workout) ? "Added" : "Add"}
+            </button>
           </div>
         ))}
       </div>
+
       <div className="pagination">
-        {" "}
-        {/* Pagination controls */}
-        <button disabled={page === 1} onClick={() => setPage(page - 1)}>
+        <button
+          type="button"
+          disabled={page === 1}
+          onClick={() => setPage((prev) => prev - 1)}
+        >
           Previous
         </button>
+
         <button
-          disabled={workouts.length < limit} // Disable next button if less than limit
-          onClick={() => setPage(page + 1)}
+          type="button"
+          disabled={workouts.length < limit}
+          onClick={() => setPage((prev) => prev + 1)}
         >
           Next
         </button>
       </div>
+
       <h3>Selected Workouts</h3>
+
       <div className="selected-workouts">
-        {" "}
-        {/* Display selected workouts */}
         {selected.map((workout) => (
           <div key={workout._id} className="selected-workout">
             <h4>{workout.name}</h4>
-            <button onClick={() => handleWorkoutRemove(workout)}>
+            <button type="button" onClick={() => handleWorkoutRemove(workout)}>
               Remove
-            </button>{" "}
-            {/* Remove workout */}
+            </button>
           </div>
         ))}
       </div>
-      <button onClick={handleCreateOrUpdateSplit}>
-        {" "}
-        {/* Create or update split button */}
-        {splitId ? "Update Split" : "Create Split"}
+
+      <button
+        type="button"
+        onClick={handleCreateOrUpdateSplit}
+        disabled={saving}
+      >
+        {saving
+          ? splitId
+            ? "Updating..."
+            : "Creating..."
+          : splitId
+          ? "Update Split"
+          : "Create Split"}
       </button>
     </div>
   );
 };
 
-export default SplitPlanner; // Export the SplitPlanner component
+export default SplitPlanner;

@@ -1,145 +1,192 @@
-import React, { useEffect, useState } from "react"; // Import React and hooks
-import { triggerExerciseFetch, fetchExercises } from "../../apis/exerciseApi"; // API functions for fetching exercises
-import { createWorkout, updateWorkout } from "../../apis/workoutApi"; // API functions for workout management
-import { useLocation, useNavigate } from "react-router-dom"; // Hooks for routing
-import "./WorkoutCreator.css"; // Import CSS for styling
+import React, { useEffect, useState } from "react";
+import { fetchExercises } from "../../apis/exerciseApi";
+import { createWorkout, updateWorkout } from "../../apis/workoutApi";
+import { useLocation, useNavigate } from "react-router-dom";
+import "./WorkoutCreator.css";
 
 const WorkoutCreator = () => {
-  const location = useLocation(); // Get location object
-  const navigate = useNavigate(); // Initialize navigation
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  // Destructure state from location or set defaults
   const {
     workoutId = null,
     workoutName = "",
     selectedExercises = [],
   } = location.state || {};
 
-  // State variables
-  const [exercises, setExercises] = useState([]); // Available exercises
-  const [selected, setSelected] = useState(selectedExercises); // Selected exercises
-  const [workoutNameState, setWorkoutNameState] = useState(workoutName); // Workout name
-  const [searchTerm, setSearchTerm] = useState(""); // Search input
-  const [page, setPage] = useState(1); // Pagination
-  const [limit] = useState(16); // Number of exercises per page
+  const [exercises, setExercises] = useState([]);
+  const [selected, setSelected] = useState(selectedExercises);
+  const [workoutNameState, setWorkoutNameState] = useState(workoutName);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit] = useState(16);
 
-  // Fetch exercises based on search term and pagination
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [loadingExercises, setLoadingExercises] = useState(false);
+
   useEffect(() => {
     const getExercises = async () => {
       try {
-        //await triggerExerciseFetch(); // Trigger exercise fetch
-        const data = await fetchExercises(searchTerm, page, limit); // Fetch exercises
-        setExercises(data); // Update state with fetched exercises
+        setLoadingExercises(true);
+        setError("");
+
+        const data = await fetchExercises(searchTerm, page, limit);
+        setExercises(data);
       } catch (error) {
         console.error("Error fetching exercises:", error);
+        setError(error.message || "Failed to fetch exercises.");
+      } finally {
+        setLoadingExercises(false);
       }
     };
 
-    getExercises(); // Execute fetch function
+    getExercises();
   }, [searchTerm, page, limit]);
 
-  // Handle selection of an exercise
+  const isExerciseSelected = (exercise) => {
+    return selected.some((selectedExercise) => selectedExercise.id === exercise.id);
+  };
+
   const handleExerciseSelect = (exercise) => {
-    if (!selected.includes(exercise)) {
-      setSelected([...selected, exercise]); // Add exercise to selected
+    if (!isExerciseSelected(exercise)) {
+      setSelected((prev) => [...prev, exercise]);
+      setError("");
     }
   };
 
-  // Handle removal of an exercise
   const handleExerciseRemove = (exercise) => {
-    setSelected(selected.filter((ex) => ex !== exercise)); // Remove exercise from selected
+    setSelected((prev) =>
+      prev.filter((selectedExercise) => selectedExercise.id !== exercise.id)
+    );
   };
 
-  // Create or update workout based on presence of workoutId
   const handleCreateOrUpdateWorkout = async () => {
+    setError("");
+
+    if (!workoutNameState.trim()) {
+      setError("Please enter a workout name.");
+      return;
+    }
+
+    if (selected.length === 0) {
+      setError("Please select at least one exercise.");
+      return;
+    }
+
     const workoutData = {
-      name: workoutNameState,
-      exercises: selected.map((ex) => ex.id), // Map selected exercises to their IDs
+      name: workoutNameState.trim(),
+      exercises: selected.map((exercise) => exercise.id),
     };
 
-    if (workoutId) {
-      await updateWorkout(workoutId, workoutData); // Update existing workout
-    } else {
-      await createWorkout(workoutData); // Create new workout
-    }
+    try {
+      setSaving(true);
 
-    // Reset state and navigate to workouts page
-    setWorkoutNameState("");
-    setSelected([]);
-    navigate("/workouts");
+      if (workoutId) {
+        await updateWorkout(workoutId, workoutData);
+      } else {
+        await createWorkout(workoutData);
+      }
+
+      setWorkoutNameState("");
+      setSelected([]);
+      navigate("/workouts");
+    } catch (error) {
+      console.error("Error saving workout:", error);
+      setError(error.message || "Failed to save workout.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  // Handle search input changes
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value); // Update search term
-    setPage(1); // Reset to first page
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+    setPage(1);
   };
 
   return (
     <div className="workout-creator">
-      {" "}
-      {/* Main container */}
-      <h2>{workoutId ? "Edit Workout" : "Create a New Workout"}</h2>{" "}
-      {/* Title */}
+      <h2>{workoutId ? "Edit Workout" : "Create a New Workout"}</h2>
+
+      {error && <div className="error-message">{error}</div>}
+
       <input
         type="text"
         placeholder="Workout Name"
         value={workoutNameState}
-        onChange={(e) => setWorkoutNameState(e.target.value)} // Update workout name
+        onChange={(event) => setWorkoutNameState(event.target.value)}
       />
+
       <h3>Select Exercises</h3>
+
       <input
         type="text"
         placeholder="Search Exercises"
         value={searchTerm}
-        onChange={handleSearchChange} // Handle search input changes
+        onChange={handleSearchChange}
       />
+
+      {loadingExercises && <p>Loading exercises...</p>}
+
       <div className="exercise-list">
-        {exercises.map(
-          (
-            exercise // Map through exercises
-          ) => (
-            <div key={exercise.id} className="exercise-box">
-              <img src={exercise.gifUrl} alt={exercise.name} />{" "}
-              {/* Exercise GIF */}
-              <p>{exercise.name}</p> {/* Exercise name */}
-              <button onClick={() => handleExerciseSelect(exercise)}>
-                Add
-              </button>{" "}
-              {/* Add exercise */}
-            </div>
-          )
-        )}
-      </div>
-      <div className="pagination">
-        {" "}
-        {/* Pagination controls */}
-        <button disabled={page === 1} onClick={() => setPage(page - 1)}>
-          Previous
-        </button>
-        <button onClick={() => setPage(page + 1)}>Next</button>
-      </div>
-      <h3>Selected Exercises</h3>
-      <div className="selected-exercises">
-        {" "}
-        {/* Display selected exercises */}
-        {selected.map((exercise) => (
-          <div key={exercise.id} className="selected-exercise">
-            <p>{exercise.name}</p> {/* Selected exercise name */}
-            <button onClick={() => handleExerciseRemove(exercise)}>
-              Remove
-            </button>{" "}
-            {/* Remove exercise */}
+        {exercises.map((exercise) => (
+          <div key={exercise.id} className="exercise-box">
+            <img src={exercise.gifUrl} alt={exercise.name} />
+            <p>{exercise.name}</p>
+
+            <button
+              type="button"
+              onClick={() => handleExerciseSelect(exercise)}
+              disabled={isExerciseSelected(exercise)}
+            >
+              {isExerciseSelected(exercise) ? "Added" : "Add"}
+            </button>
           </div>
         ))}
       </div>
-      <button onClick={handleCreateOrUpdateWorkout}>
-        {" "}
-        {/* Create or update workout button */}
-        {workoutId ? "Update Workout" : "Create Workout"}
+
+      <div className="pagination">
+        <button
+          type="button"
+          disabled={page === 1}
+          onClick={() => setPage((prev) => prev - 1)}
+        >
+          Previous
+        </button>
+
+        <button type="button" onClick={() => setPage((prev) => prev + 1)}>
+          Next
+        </button>
+      </div>
+
+      <h3>Selected Exercises</h3>
+
+      <div className="selected-exercises">
+        {selected.map((exercise) => (
+          <div key={exercise.id} className="selected-exercise">
+            <p>{exercise.name}</p>
+            <button type="button" onClick={() => handleExerciseRemove(exercise)}>
+              Remove
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        onClick={handleCreateOrUpdateWorkout}
+        disabled={saving}
+      >
+        {saving
+          ? workoutId
+            ? "Updating..."
+            : "Creating..."
+          : workoutId
+          ? "Update Workout"
+          : "Create Workout"}
       </button>
     </div>
   );
 };
 
-export default WorkoutCreator; // Export the WorkoutCreator component
+export default WorkoutCreator;

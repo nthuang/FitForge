@@ -10,8 +10,12 @@ router.post("/", protect, async (req, res) => {
   const { name, exercises } = req.body;
 
   // Validate input
-  if (!name || !Array.isArray(exercises)) {
-    return res.status(400).json({ message: "Name and exercises are required" });
+  if (!name || !name.trim()) {
+    return res.status(400).json({ message: "Workout name is required" });
+  }
+
+  if (!Array.isArray(exercises) || exercises.length === 0) {
+    return res.status(400).json({ message: "Please select at least one exercise" });
   }
 
   try {
@@ -74,6 +78,14 @@ router.get("/:id", protect, async (req, res) => {
 // Update a specific workout by ID
 router.put("/:id", protect, async (req, res) => {
   const { name, exercises } = req.body;
+  
+  if (!name || !name.trim()) {
+    return res.status(400).json({ message: "Workout name is required" });
+  }
+
+  if (!Array.isArray(exercises) || exercises.length === 0) {
+    return res.status(400).json({ message: "Please select at least one exercise" });
+  }
 
   try {
     const workout = await Workout.findOneAndUpdate(
