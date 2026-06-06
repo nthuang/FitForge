@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { fetchSplits, deleteSplit } from "../../apis/splitApi"; // Ensure these are correctly implemented in splitApi.js
-import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
-import "./SplitLibrary.css"; // Import CSS for styling
+import { fetchSplits, deleteSplit, fetchSplitDetails } from "../../apis/splitApi";
+import { Link, useNavigate } from "react-router-dom";
+import "./SplitLibrary.css";
 
 const SplitLibrary = () => {
   const [splits, setSplits] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const [selectedSplit, setSelectedSplit] = useState(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getSplits = async () => {
       try {
-        const fetchedSplits = await fetchSplits(); // Fetch all splits
+        const fetchedSplits = await fetchSplits();
         setSplits(fetchedSplits);
       } catch (err) {
         setError(err.message);
@@ -21,27 +23,23 @@ const SplitLibrary = () => {
         setLoading(false);
       }
     };
-
     getSplits();
   }, []);
 
-  // Handle delete function for a split
-  const handleDeleteSplit = async (id) => {
+  const handleDeleteSplit = async (e, id) => {
+    e.stopPropagation(); // don't open the modal when deleting
     try {
-      await deleteSplit(id); // Delete the split by ID
-      setSplits(splits.filter((split) => split._id !== id)); // Remove the deleted split from state
+      await deleteSplit(id);
+      setSplits(splits.filter((split) => split._id !== id));
     } catch (err) {
       console.error("Error deleting split:", err);
     }
   };
 
-  // Handle search input change
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
+  const handleSearchChange = (e) => setSearchTerm(e.target.value);
 
-  // Handle programmatic navigation for editing split
-  const handleEditSplit = (split) => {
+  const handleEditSplit = (e, split) => {
+    e.stopPropagation(); // don't open the modal when editing
     navigate("/split-planner", {
       state: {
         splitId: split._id,
@@ -51,7 +49,21 @@ const SplitLibrary = () => {
     });
   };
 
-  // Filter splits based on search term
+  const handleOpenSplit = async (split) => {
+    setSelectedSplit(split);     // show name immediately
+    setDetailsLoading(true);
+    try {
+      const detailed = await fetchSplitDetails(split._id);
+      setSelectedSplit(detailed); // swap in full exercise details
+    } catch (err) {
+      console.error("Error loading split details:", err);
+    } finally {
+      setDetailsLoading(false);
+    }
+  };
+
+  const handleCloseModal = () => setSelectedSplit(null);
+
   const filteredSplits = splits.filter((split) =>
     split.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -74,7 +86,11 @@ const SplitLibrary = () => {
           <p>No splits found</p>
         ) : (
           filteredSplits.map((split) => (
-            <div className="split-box" key={split._id}>
+            <div
+              className="split-box"
+              key={split._id}
+              onClick={() => handleOpenSplit(split)}
+            >
               <h2>{split.name}</h2>
               <h3>Workouts:</h3>
               {split.workouts.length === 0 ? (
@@ -86,18 +102,15 @@ const SplitLibrary = () => {
                   ))}
                 </ul>
               )}
-              <button
-                onClick={() => handleEditSplit(split)} // Use programmatic navigation
-                className="edit-button"
-              >
+              <button onClick={(e) => handleEditSplit(e, split)} className="edit-button">
                 Edit
               </button>
               <button
                 className="delete-button"
-                onClick={() => handleDeleteSplit(split._id)}
+                onClick={(e) => handleDeleteSplit(e, split._id)}
                 aria-label="Delete Split"
               >
-                &times; {/* X character */}
+                &times;
               </button>
             </div>
           ))
@@ -106,6 +119,40 @@ const SplitLibrary = () => {
       <Link to="/split-planner" className="create-split-button">
         Create Split
       </Link>
+
+      {selectedSplit && (
+        <div className="modal-overlay" onClick={handleCloseModal}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={handleCloseModal} aria-label="Close">
+              &times;
+            </button>
+            <h2>{selectedSplit.name}</h2>
+            {detailsLoading ? (
+              <p>Loading exercises…</p>
+            ) : (
+              selectedSplit.workouts.map((workout) => (
+                <div className="modal-workout" key={workout._id}>
+                  <h3>{workout.name}</h3>
+                  {workout.exercises && workout.exercises.length > 0 ? (
+                    <ul className="modal-exercise-list">
+                      {workout.exercises.map((ex) => (
+                        <li key={ex._id || ex.id}>
+                          <strong>{ex.name}</strong>
+                          <span className="exercise-meta">
+                            {[ex.bodyPart, ex.target, ex.equipment].filter(Boolean).join(" · ")}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>No exercises in this workout</p>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -3,6 +3,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const bodyParser = require("body-parser");
 const path = require("path");
+require("express-async-errors");
 
 const exerciseRoutes = require("./routes/exercises");
 const workoutRoutes = require("./routes/workouts");
@@ -41,5 +42,8 @@ app.use(express.static(path.join(__dirname, "../frontend/build")));
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
 });
+
+const errorHandler = require("./middleware/errorHandler");
+app.use(errorHandler);
 
 module.exports = app;
