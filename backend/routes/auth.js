@@ -20,7 +20,6 @@ const serializeUser = (user) => ({
 });
 
 router.post("/register", async (req, res) => {
-    try {
         const { name, email, password } = req.body;
 
         if (!name || !email || !password) { 
@@ -50,13 +49,9 @@ router.post("/register", async (req, res) => {
             user: serializeUser(user),
         });
 
-    } catch (error) {
-        res.status(500).json({ message: "Registration failed", error: error.message });
-    }
 });
 
 router.post("/login", async (req, res) => { 
-    try {
         const { email, password } = req.body;
 
         if (!email || !password) {
@@ -79,9 +74,6 @@ router.post("/login", async (req, res) => {
             token: createToken(user._id),
             user: serializeUser(user),
         });
-    } catch (error) {
-        res.status(500).json({ message: "Login Failed", error: error.message });
-    }
 });
 
 router.get("/me", protect, async (req, res) => {
@@ -91,7 +83,7 @@ router.get("/me", protect, async (req, res) => {
 });
 
 router.put("/profile", protect, async (req, res) => {
-    try {
+
         const {
             goal,
             experienceLevel,
@@ -121,12 +113,6 @@ router.put("/profile", protect, async (req, res) => {
 
         res.status(200).json({ user: serializeUser(user) });
 
-    } catch (error) {
-        res.status(500).json({
-            message: "Failed to update fitness profile",
-            error: error.message,
-        })
-    }
 });
 
 module.exports = router;

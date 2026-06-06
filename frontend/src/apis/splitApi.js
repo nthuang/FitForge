@@ -53,6 +53,17 @@ export const fetchSplitById = async (id) => {
   return data;
 };
 
+export const fetchSplitDetails = async (id) => {
+  const response = await fetch(`${API_URL}/splits/${id}/details`, {
+    headers: { ...getAuthHeaders() },
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to fetch split details");
+  }
+  return data;
+};
+
 export const updateSplit = async (id, split) => {
   const response = await fetch(`${API_URL}/splits/${id}`, {
     method: "PUT",

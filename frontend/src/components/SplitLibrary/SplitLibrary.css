@@ -6,11 +6,13 @@
   text-align: center;
 }
 
-.split-list {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+.splits-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
+  width: 100%;
+  max-width: 1000px;
+  margin: 20px auto;
 }
 
 .split-box {
@@ -18,10 +20,11 @@
   border: 1px solid #ccc;
   border-radius: 10px;
   padding: 20px;
-  width: 300px;
+  width: auto;                 /* was 300px — let the grid size it */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   text-align: left;
-  transition: box-shadow 0.3s;
+  cursor: pointer;             /* signal it's clickable */
+  transition: box-shadow 0.3s, transform 0.3s;
   background-color: #f9f9f9;
 }
 
@@ -104,4 +107,57 @@
 
 .create-split-button:hover {
   background-color: #8E44AD;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  text-align: left;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.modal-workout { margin-bottom: 20px; }
+.modal-workout h3 {
+  margin: 0 0 8px 0;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 4px;
+}
+.modal-exercise-list { list-style: none; padding: 0; margin: 0; }
+.modal-exercise-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+}
+.exercise-meta {
+  font-size: 0.85rem;
+  color: #777;
+  text-transform: capitalize;
 }
