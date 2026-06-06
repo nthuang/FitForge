@@ -1,32 +1,90 @@
-import axios from "axios";
+import { getAuthHeaders } from "./authHeaders";
 
-const API_URL = "https://fitforge.onrender.com/api"; // Base API URL
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
-// Function to create a new split
 export const createSplit = async (split) => {
-  const { data } = await axios.post(`${API_URL}/splits`, split); // Send POST request to create split
-  return data; // Return created split data
+  const response = await fetch(`${API_URL}/splits`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+    body: JSON.stringify(split),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to create split");
+  }
+
+  return data;
 };
 
-// Function to fetch all splits
 export const fetchSplits = async () => {
-  const { data } = await axios.get(`${API_URL}/splits`); // Send GET request to fetch splits
-  return data; // Return fetched splits data
+  const response = await fetch(`${API_URL}/splits`, {
+    headers: {
+      ...getAuthHeaders(),
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to fetch splits");
+  }
+
+  return data;
 };
 
-// Function to fetch a split by its ID
 export const fetchSplitById = async (id) => {
-  const { data } = await axios.get(`${API_URL}/splits/${id}`); // Send GET request for specific split
-  return data; // Return fetched split data
+  const response = await fetch(`${API_URL}/splits/${id}`, {
+    headers: {
+      ...getAuthHeaders(),
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to fetch split");
+  }
+
+  return data;
 };
 
-// Function to update a split by its ID
 export const updateSplit = async (id, split) => {
-  const { data } = await axios.put(`${API_URL}/splits/${id}`, split); // Send PUT request to update split
-  return data; // Return updated split data
+  const response = await fetch(`${API_URL}/splits/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+    body: JSON.stringify(split),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to update split");
+  }
+
+  return data;
 };
 
-// Function to delete a split by its ID
 export const deleteSplit = async (id) => {
-  await axios.delete(`${API_URL}/splits/${id}`); // Send DELETE request to remove split
+  const response = await fetch(`${API_URL}/splits/${id}`, {
+    method: "DELETE",
+    headers: {
+      ...getAuthHeaders(),
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to delete split");
+  }
+
+  return data;
 };

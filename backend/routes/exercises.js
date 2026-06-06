@@ -1,11 +1,12 @@
 const express = require("express");
 const axios = require("axios");
 const Exercise = require("../models/Exercise");
+const { protect, adminOnly } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
 // Fetch exercises from the external API
-router.get("/fetch", async (req, res) => {
+router.get("/fetch", protect, adminOnly, async (req, res) => {
   try {
     const response = await axios.get(
       "https://exercisedb.p.rapidapi.com/exercises",

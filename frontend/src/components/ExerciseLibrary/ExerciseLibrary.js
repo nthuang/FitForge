@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"; // Import React and hooks
-import { triggerExerciseFetch, fetchExercises } from "../../apis/exerciseApi"; // Import API functions
+import { fetchExercises } from "../../apis/exerciseApi"; // Import API functions
 import "./ExerciseLibrary.css"; // Import CSS for styling
 
 const ExerciseLibrary = () => {
@@ -11,7 +11,7 @@ const ExerciseLibrary = () => {
   useEffect(() => {
     const getExercises = async () => {
       try {
-        await triggerExerciseFetch(); // Fetch exercises from the API
+        //await triggerExerciseFetch(); // Fetch exercises from the API
         const data = await fetchExercises(searchTerm, page, limit); // Get exercises based on search and pagination
         setExercises(data); // Update state with fetched exercises
       } catch (error) {
